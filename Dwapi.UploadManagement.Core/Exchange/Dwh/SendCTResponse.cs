@@ -1,6 +1,6 @@
-﻿namespace Dwapi.UploadManagement.Core.Exchange.Cbs
+﻿namespace Dwapi.UploadManagement.Core.Exchange.Dwh
 {
-    public class SendMpiResponse
+    public class SendCTResponse
     {
         public string BatchKey { get; set; }
 

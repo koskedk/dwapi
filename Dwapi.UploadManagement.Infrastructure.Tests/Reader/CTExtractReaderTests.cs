@@ -1,45 +1,27 @@
 ﻿using System;
 using System.Linq;
-using Dwapi.ExtractsManagement.Infrastructure;
 using Dwapi.UploadManagement.Core.Interfaces.Reader.Dwh;
-using Dwapi.UploadManagement.Infrastructure.Data;
-using Dwapi.UploadManagement.Infrastructure.Reader.Dwh;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Dwapi.UploadManagement.Core.Model.Dwh;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Dwapi.UploadManagement.Infrastructure.Tests.Reader
 {
     [TestFixture]
-    public class DwhExtractReaderTests
+    public class CTExtractReaderTests
     {
-        private IServiceProvider _serviceProvider;
-        private UploadContext _context;
-        private IDwhExtractReader _reader;
+        private ICTExtractReader _reader;
 
         [OneTimeSetUp]
         public void Init()
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-            var connectionString = config["ConnectionStrings:DwapiConnection"];
 
-            _serviceProvider = new ServiceCollection()
-                .AddDbContext<Dwapi.SettingsManagement.Infrastructure.SettingsContext>(o => o.UseSqlServer(connectionString))
-                .AddDbContext<ExtractsContext>(o => o.UseSqlServer(connectionString))
-                .AddDbContext<UploadContext>(o => o.UseSqlServer(connectionString))
-                .AddTransient<IDwhExtractReader, DwhExtractReader>()
-                .BuildServiceProvider();
-
-            _context = _serviceProvider.GetService<UploadContext>();
         }
 
         [SetUp]
         public void SetUp()
         {
-            _reader = _serviceProvider.GetService<IDwhExtractReader>();
+            _reader =TestInitializer.ServiceProvider.GetService<ICTExtractReader>();
         }
 
         [Test]
@@ -54,6 +36,23 @@ namespace Dwapi.UploadManagement.Infrastructure.Tests.Reader
         {
             var extractViews = _reader.ReadAllIds().ToList();
             Assert.True(extractViews.Any());
+        }
+
+
+        [Test]
+        public void should_ART_ReadPaged()
+        {
+            var extractViews = _reader.Read<PatientArtExtractView,Guid>(1, 2).ToList();
+            Assert.True(extractViews.Any());
+            Assert.True(extractViews.Count==2);
+            Assert.NotNull(extractViews.First().PatientExtractView);
+        }
+
+        [Test]
+        public void should_ART_Count()
+        {
+            var totalRecords = _reader.GetTotalRecords<PatientArtExtractView,Guid>();
+            Assert.True(totalRecords>0);
         }
     }
 }

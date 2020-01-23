@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dwapi.SharedKernel.Exchange;
 using Dwapi.SharedKernel.Model;
 using Dwapi.UploadManagement.Core.Interfaces.Reader.Dwh;
 using Dwapi.UploadManagement.Core.Model.Dwh;
+using Dwapi.UploadManagement.Core.Packager;
 using Dwapi.UploadManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dwapi.UploadManagement.Infrastructure.Reader.Dwh
 {
-    public class DwhExtractReader:IDwhExtractReader
+    public class CTExtractReader:ICTExtractReader
     {
         private readonly UploadContext _context;
 
-        public DwhExtractReader(UploadContext context)
+        public CTExtractReader(UploadContext context)
         {
             _context = context;
         }
@@ -32,19 +34,20 @@ namespace Dwapi.UploadManagement.Infrastructure.Reader.Dwh
             return _context.ClientPatientExtracts.Where(x=>!x.IsSent).AsNoTracking().Select(x=>x.Id);
         }
 
-        public PatientExtractView Read(Guid id)
+        public IEnumerable<T> Read<T, TId>(int page, int pageSize) where T : Entity<TId>
         {
-            var patientExtractView = _context.ClientPatientExtracts
-                .Include(x => x.PatientArtExtracts)
-                .Include(x => x.PatientBaselinesExtracts)
-                .Include(x => x.PatientLaboratoryExtracts)
-                .Include(x => x.PatientPharmacyExtracts)
-                .Include(x => x.PatientStatusExtracts)
-                .Include(x => x.PatientVisitExtracts)
-                .Include(x => x.PatientAdverseEventExtracts)
-                .AsNoTracking()
-                .SingleOrDefault(x => x.Id == id);
-            return patientExtractView;
+            return _context.Set<T>()
+                .Include(nameof(PatientExtractView))
+                .Skip((page - 1) * pageSize).Take(pageSize)
+                .OrderBy(x => x.Id)
+                .AsNoTracking();
+        }
+
+        public long GetTotalRecords<T, TId>() where T : Entity<TId>
+        {
+            return _context.Set<T>()
+                .Select(x => x.Id)
+                .LongCount();
         }
     }
 }

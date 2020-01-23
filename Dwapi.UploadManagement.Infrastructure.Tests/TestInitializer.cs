@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using AutoMapper;
 using Dapper;
 using Dwapi.ExtractsManagement.Core.Interfaces.Repository;
 using Dwapi.ExtractsManagement.Core.Interfaces.Services;
@@ -36,15 +35,13 @@ using Dwapi.UploadManagement.Infrastructure.Reader;
 using Dwapi.UploadManagement.Infrastructure.Reader.Cbs;
 using Dwapi.UploadManagement.Infrastructure.Reader.Dwh;
 using Dwapi.UploadManagement.Infrastructure.Reader.Hts;
-using MediatR;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Serilog;
 
-namespace Dwapi.UploadManagement.Core.Tests
+namespace Dwapi.UploadManagement.Infrastructure.Tests
 {
     [SetUpFixture]
     public class TestInitializer
@@ -105,6 +102,7 @@ namespace Dwapi.UploadManagement.Core.Tests
 
 
                 .AddTransient<IDwhExtractReader, DwhExtractReader>()
+                .AddTransient<ICTExtractReader, CTExtractReader>()
                 .AddTransient<IDwhPackager, DwhPackager>()
                 .AddTransient<ICTPackager, CTPackager>()
                 .AddTransient<ICTSendService, CTSendService>()
@@ -117,8 +115,7 @@ namespace Dwapi.UploadManagement.Core.Tests
                 .AddTransient<IHtsExtractReader, HtsExtractReader>()
                 .AddTransient<IExtractStatusService,ExtractStatusService>()
                 .AddTransient<IExtractHistoryRepository,ExtractHistoryRepository>()
-                .AddTransient<IEmrSystemRepository,EmrSystemRepository>()
-                .AddTransient<IDwhExtractReader, DwhExtractReader>();
+                .AddTransient<IEmrSystemRepository,EmrSystemRepository>();
 
 
             Services = services;

@@ -30,7 +30,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
         private readonly string _subId = "DWAPI";
         private readonly string url = "http://192.168.100.8/dwapi";
 
-        private IDwhSendService _dwhSendService; 
+        private IDwhSendService _dwhSendService;
         private IServiceProvider _serviceProvider;
         private DwhManifestMessageBag _bag;
         private ArtMessageBag _artBag;
@@ -71,7 +71,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
             };
             _dwhSendService = _serviceProvider.GetService<IDwhSendService>();
         }
-       
+
         [Test]
         public void should_Send_Manifest()
         {

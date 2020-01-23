@@ -202,15 +202,15 @@ namespace Dwapi.UploadManagement.Core.Services.Dwh
                             {
                                 var response = client.PostAsCompressedAsync(sendTo.GetUrl($"{_endPoint.HasToEndsWith("/")}{artMessageBag.EndPoint}"), artMessage);
                                 httpResponseMessages.Add(response);
-                                _artCount += artMessage.ArtExtracts.Count;
-                                sentPatientArts.AddRange(artMessage.ArtExtracts.Select(x => x.Id).ToList());
+                                _artCount += artMessage.Extracts.Count;
+                                sentPatientArts.AddRange(artMessage.Extracts.Select(x => x.Id).ToList());
 
                             }
                             catch (Exception e)
                             {
                                 //Show error message in UI
                                 DomainEvents.Dispatch(new DwhMessageNotification(true, $"Error sending {ExtractType.PatientArt.ToString()}s for patient id {id}"));
-                                DomainEvents.Dispatch(new DwhExtractSentEvent(ExtractType.PatientArt, artMessage.ArtExtracts.Select(x => x.Id).ToList(), SendStatus.Failed, e.Message));
+                                DomainEvents.Dispatch(new DwhExtractSentEvent(ExtractType.PatientArt, artMessage.Extracts.Select(x => x.Id).ToList(), SendStatus.Failed, e.Message));
                                 Log.Error(e, $"Send Error");
                                 PrintMessage(artMessage);
                                 throw;
@@ -225,7 +225,7 @@ namespace Dwapi.UploadManagement.Core.Services.Dwh
                                 httpResponseMessages.Add(response);
                                 _baselineCount += baselineMessage.BaselinesExtracts.Count;
                                 sentPatientBaselines.AddRange(baselineMessage.BaselinesExtracts.Select(x => x.Id).ToList());
-                            
+
                             }
                             catch (Exception e)
                             {
@@ -381,7 +381,7 @@ namespace Dwapi.UploadManagement.Core.Services.Dwh
                             httpResponseMessages.Clear();
                             UpdateUiNumbers(ExtractStatus.Sending);
                         }
-                        
+
                     }
                     //update extract sent field
                     BackgroundJob.Enqueue(() => UpdateExtractSent(ExtractType.Patient, sentPatients));

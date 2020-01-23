@@ -3,6 +3,7 @@ using System.Linq;
 using Dwapi.UploadManagement.Core.Interfaces.Packager.Dwh;
 using Dwapi.UploadManagement.Core.Interfaces.Reader;
 using Dwapi.UploadManagement.Core.Interfaces.Reader.Dwh;
+using Dwapi.UploadManagement.Core.Model.Dwh;
 using Dwapi.UploadManagement.Core.Packager.Dwh;
 using Dwapi.UploadManagement.Infrastructure.Data;
 using Dwapi.UploadManagement.Infrastructure.Reader;
@@ -18,8 +19,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Packager.Dwh
     [Category("Dwh")]
     public class CTPackagerTests
     {
-        private IServiceProvider _serviceProvider;
-        private IDwhPackager _packager;
+        private ICTPackager _packager;
         private Guid _pid;
 
         [OneTimeSetUp]
@@ -30,15 +30,8 @@ namespace Dwapi.UploadManagement.Core.Tests.Packager.Dwh
                 .Build();
             var connectionString = config["ConnectionStrings:DwapiConnection"];
 
-            _serviceProvider = new ServiceCollection()
-                .AddDbContext<Dwapi.SettingsManagement.Infrastructure.SettingsContext>(o => o.UseSqlServer(connectionString))
-                .AddDbContext<UploadContext>(o => o.UseSqlServer(connectionString))
-                .AddTransient<IDwhExtractReader, DwhExtractReader>()
-                .AddTransient<IEmrMetricReader, EmrMetricReader>()
-                .AddTransient<IDwhPackager, DwhPackager>()
-                .BuildServiceProvider();
 
-            var ctx = _serviceProvider.GetService<UploadContext>();
+            var ctx =TestInitializer.ServiceProvider.GetService<UploadContext>();
             var art= ctx.ClientPatientArtExtracts.First();
             _pid = ctx.ClientPatientExtracts.First(x => x.PatientPK == art.PatientPK && x.SiteCode == art.SiteCode).Id;
         }
@@ -47,7 +40,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Packager.Dwh
         [SetUp]
         public void SetUp()
         {
-            _packager = _serviceProvider.GetService<IDwhPackager>();
+            _packager =TestInitializer.ServiceProvider.GetService<ICTPackager>();
 
         }
 
@@ -68,17 +61,24 @@ namespace Dwapi.UploadManagement.Core.Tests.Packager.Dwh
             Assert.True(manfiests.Any());
             var m = manfiests.First();
             Assert.True(m.PatientPks.Any());
-            Assert.False(string.IsNullOrWhiteSpace(m.Metrics));
+            Assert.True(m.FacMetrics.Any());
             Console.WriteLine($"{m}");
             Console.WriteLine(m.Metrics);
         }
 
         [Test]
-        public void should_Generate_Extracts()
+        public void should_Generate_Art_Extracts()
         {
-            var manfiests = _packager.GenerateExtracts(_pid);
-            Assert.NotNull(manfiests);
-            Assert.True(manfiests.PatientArtExtracts.Any());
+            var extracts = _packager.GenerateBatchExtracts<PatientArtExtractView,Guid>(1,1);
+            Assert.True(extracts.Any());
+        }
+
+        [Test]
+        public void should_Get_Art_PackageInfo()
+        {
+            var extracts = _packager.GetPackageInfo<PatientArtExtractView,Guid>(1);
+            Assert.True(extracts.PageCount>0);
+            Assert.True(extracts.TotalRecords>0);
         }
     }
 }

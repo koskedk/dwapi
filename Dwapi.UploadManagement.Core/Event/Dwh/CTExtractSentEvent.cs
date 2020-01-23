@@ -5,7 +5,7 @@ using Dwapi.SharedKernel.Enum;
 using Dwapi.SharedKernel.Events;
 using Dwapi.SharedKernel.Model;
 
-namespace Dwapi.UploadManagement.Core.Event.Hts
+namespace Dwapi.UploadManagement.Core.Event.Dwh
 {
     public class CTExtractSentEvent : IDomainEvent
     {

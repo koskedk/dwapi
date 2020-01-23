@@ -35,7 +35,7 @@ namespace Dwapi.UploadManagement.Core.Model.Dwh
         [NotMapped] public string PatientCccNumber => PatientID;
         [NotMapped] public int FacilityId =>SiteCode;
 
-        [NotMapped]
+
         public ICollection<PatientArtExtractView> PatientArtExtracts { get; set; } = new List<PatientArtExtractView>();
         [NotMapped]
         public ICollection<PatientBaselinesExtractView> PatientBaselinesExtracts { get; set; }=new List<PatientBaselinesExtractView>();
@@ -56,6 +56,7 @@ namespace Dwapi.UploadManagement.Core.Model.Dwh
         [NotMapped] public bool HasPharmacy => null != PatientPharmacyExtracts && PatientPharmacyExtracts.Any();
         [NotMapped] public bool HasStatus => null != PatientStatusExtracts && PatientStatusExtracts.Any();
         [NotMapped] public bool HasVisit => null != PatientVisitExtracts&&PatientVisitExtracts.Any();
+        [NotMapped] public bool HasAdverseEvents => null != PatientAdverseEventExtracts&&PatientAdverseEventExtracts.Any();
 
 
         public Facility GetFacility()

@@ -1,19 +1,16 @@
 using System;
 
-namespace Dwapi.UploadManagement.Core.Model
+namespace Dwapi.UploadManagement.Core.Packager
 {
     public class PackagePager
     {
-        public int PageCount(int batchSize, int totalRecords)
+        public int PageCount(int batchSize, long totalRecords)
         {
             if (totalRecords > 0) {
                 if (totalRecords < batchSize) {
                     return 1;
                 }
-                var pgs=(totalRecords % batchSize);
-                double wh = (double)totalRecords /(double)batchSize;
-                return (int) (Math.Floor(wh) + pgs);
-
+                return (int)Math.Ceiling(totalRecords / (double)batchSize);
             }
             return 0;
         }

@@ -25,10 +25,9 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
     {
         private readonly string _authToken = @"1ba47c2a-6e05-11e8-adc0-fa7ae01bbebc";
         private readonly string _subId = "DWAPI";
-        private readonly string url = "http://192.168.100.8/dwapi";
+        private readonly string url = "http://192.168.43.15/dwapi";
 
-        private IDwhSendService _dwhSendService;
-        private IServiceProvider _serviceProvider;
+        private ICTSendService _ctSendService;
         private DwhManifestMessageBag _bag;
         private ArtMessageBag _artBag;
         private CentralRegistry _registry;
@@ -36,24 +35,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
         [OneTimeSetUp]
         public void Init()
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-            var connectionString = config["ConnectionStrings:DwapiConnection"];
-
-            _serviceProvider = new ServiceCollection()
-                .AddDbContext<Dwapi.SettingsManagement.Infrastructure.SettingsContext>(o => o.UseSqlServer(connectionString))
-                .AddDbContext<UploadContext>(o => o.UseSqlServer(connectionString))
-                .AddTransient<IDwhExtractReader, DwhExtractReader>()
-                .AddTransient<IDwhPackager, DwhPackager>()
-                .AddTransient<IDwhSendService, DwhSendService>()
-                .BuildServiceProvider();
-
-            /*
-                22704|TOGONYE DISPENSARY|KIRINYAGA
-                22696|HERTLANDS MEDICAL CENTRE|NAROK
-            */
-
+         //   TestInitializer.ClearDb();
             _bag = TestDataFactory.DwhManifestMessageBag(2,10001);
             _artBag = TestDataFactory.ArtMessageBag(5, 10001);
         }
@@ -66,7 +48,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
                 AuthToken = _authToken,
                 SubscriberId = _subId
             };
-            _dwhSendService = _serviceProvider.GetService<IDwhSendService>();
+            _ctSendService = TestInitializer.ServiceProvider.GetService<ICTSendService>();
         }
 
         [Test]
@@ -74,7 +56,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
         {
             var sendTo=new SendManifestPackageDTO(_registry);
 
-            var responses = _dwhSendService.SendManifestAsync(sendTo, _bag).Result;
+            var responses = _ctSendService.SendManifestAsync(sendTo, _bag).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
             foreach (var sendManifestResponse in responses)
@@ -82,18 +64,21 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
                 Console.WriteLine(sendManifestResponse);
             }
         }
-        [Test]
-        public void should_Send_Extracts()
-        {
-            var sendTo = new SendManifestPackageDTO(_registry);
 
-            var responses = _dwhSendService.SendExtractsAsync(sendTo).Result;
-            Assert.True(responses.Any());
+        [Test]
+        public void should_Send_ART()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new ArtMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
             foreach (var sendManifestResponse in responses)
             {
                 Console.WriteLine(sendManifestResponse);
             }
         }
+
 
     }
 }

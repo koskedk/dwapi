@@ -48,11 +48,11 @@ namespace Dwapi.UploadManagement.Infrastructure.Data
             modelBuilder.Entity<PatientExtractView>()
                 .HasKey(f => new { f.SiteCode, f.PatientPK });
 
-            modelBuilder.Entity<PatientExtractView>()
-                .HasMany(c => c.PatientArtExtracts)
-                .WithOne()
-                .IsRequired()
-                .HasForeignKey(f => new { f.SiteCode, f.PatientPK });
+            // modelBuilder.Entity<PatientExtractView>()
+            //     .HasMany(c => c.PatientArtExtracts)
+            //     .WithOne()
+            //     .IsRequired()
+            //     .HasForeignKey(f => new { f.SiteCode, f.PatientPK });
 
             modelBuilder.Entity<PatientExtractView>()
                 .HasMany(c => c.PatientBaselinesExtracts)
