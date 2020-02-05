@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,6 +14,7 @@ using Dwapi.ExtractsManagement.Infrastructure.Repository;
 using Dwapi.SettingsManagement.Core.Interfaces.Repositories;
 using Dwapi.SettingsManagement.Infrastructure;
 using Dwapi.SettingsManagement.Infrastructure.Repository;
+using Dwapi.SharedKernel.Events;
 using Dwapi.SharedKernel.Infrastructure.Tests.TestHelpers;
 using Dwapi.SharedKernel.Utility;
 using Dwapi.UploadManagement.Core.Interfaces.Packager.Cbs;
@@ -51,14 +53,14 @@ namespace Dwapi.UploadManagement.Core.Tests
     {
         public static IServiceProvider ServiceProvider;
         public static IServiceCollection Services;
-        public static string ConnectionString;
+        public static string CentralConnectionString;
         public static IConfigurationRoot Configuration;
 
         [OneTimeSetUp]
         public void Init()
         {
-            SqlMapper.AddTypeHandler(new GuidTypeHandler());
-            SqlMapper.AddTypeHandler(new NumericTypeHandler());
+            //SqlMapper.AddTypeHandler(new GuidTypeHandler());
+            //SqlMapper.AddTypeHandler(new NumericTypeHandler());
             RemoveTestsFilesDbs();
 
             Log.Logger = new LoggerConfiguration()
@@ -73,9 +75,7 @@ namespace Dwapi.UploadManagement.Core.Tests
                 .Build();
 
             var connectionString = config.GetConnectionString("DwapiConnection");
-            // ConnectionString = connectionString.ToOsStyle();
-            //var connection = new SqliteConnection(connectionString.Replace(".db", $"{DateTime.Now.Ticks}.db"));
-            //connection.Open();
+            CentralConnectionString= config.GetConnectionString("CentralConnection");
 
             var services = new ServiceCollection();
 
@@ -103,7 +103,6 @@ namespace Dwapi.UploadManagement.Core.Tests
                     o.EnableSensitiveDataLogging();
                 })
 
-
                 .AddTransient<IDwhExtractReader, DwhExtractReader>()
                 .AddTransient<IDwhPackager, DwhPackager>()
                 .AddTransient<ICTExtractReader, CTExtractReader>()
@@ -125,6 +124,8 @@ namespace Dwapi.UploadManagement.Core.Tests
             Services = services;
 
             ServiceProvider = Services.BuildServiceProvider();
+
+            DomainEvents.Init();
 
          }
 
@@ -168,6 +169,18 @@ namespace Dwapi.UploadManagement.Core.Tests
                         file.Delete();
                 }
             }
+        }
+
+        public static TC ExecQuery<TC>(string sql)
+        {
+            TC result;
+            using (var con = new SqlConnection(CentralConnectionString))
+            {
+                result = con.Query<TC>(sql).FirstOrDefault();
+            }
+
+            return result;
+
         }
     }
 }

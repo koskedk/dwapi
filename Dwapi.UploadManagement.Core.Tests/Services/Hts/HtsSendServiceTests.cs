@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Dwapi.ExtractsManagement.Infrastructure;
 using Dwapi.SettingsManagement.Core.Model;
 using Dwapi.SharedKernel.DTOs;
 using Dwapi.SharedKernel.Exchange;
@@ -27,13 +28,14 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
     {
         private readonly string _authToken = @"1983aeda-1a96-30e9-adc0-fa7ae01bbebc";
         private readonly string _subId = "DWAPI";
-        private readonly string url = "http://dwapicentral.westeurope.cloudapp.azure.com:7777";
+        private readonly string url = "http://localhost:7777";
 
         private IHtsSendService _htsSendService;
         private IServiceProvider _serviceProvider;
         private ManifestMessageBag _bag;
         private HtsMessageBag _clientBag;
         private CentralRegistry _registry;
+        private ExtractsContext _context;
 
         [OneTimeSetUp]
         public void Init()
@@ -42,16 +44,6 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
                 .AddJsonFile("appsettings.json")
                 .Build();
             var connectionString = config["ConnectionStrings:DwapiConnection"];
-
-
-            _serviceProvider = new ServiceCollection()
-                .AddDbContext<UploadContext>(o => o.UseSqlServer(connectionString))
-                .AddTransient<IHtsSendService,HtsSendService>()
-            .AddTransient<IHtsPackager, HtsPackager>()
-                .AddTransient<IEmrMetricReader, EmrMetricReader>()
-                .AddTransient<IHtsExtractReader, HtsExtractReader>()
-
-                .BuildServiceProvider();
 
             /*
                 22704|TOGONYE DISPENSARY|KIRINYAGA
@@ -70,44 +62,54 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
                 AuthToken = _authToken,
                 SubscriberId = _subId
             };
-            _htsSendService = _serviceProvider.GetService<IHtsSendService>();
+            _htsSendService = TestInitializer.ServiceProvider.GetService<IHtsSendService>();
+            _context=TestInitializer.ServiceProvider.GetService<ExtractsContext>();
         }
 
-        [Test]
+
+        [Test,Order(1)]
         public void should_Send_Manifest()
         {
             var sendTo=new SendManifestPackageDTO(_registry);
-
-            var responses = _htsSendService.SendManifestAsync(sendTo, _bag).Result;
+            //var responses = _htsSendService.SendManifestAsync(sendTo, _bag).Result;
+            var responses = _htsSendService.SendManifestAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+
             foreach (var sendManifestResponse in responses)
             {
+                var sql = $"select count(Id) from Manifests where Id='{sendManifestResponse.Message.Manifest.Id}'";
+                Assert.AreEqual(1,TestInitializer.ExecQuery<int>(sql));
                 Console.WriteLine(sendManifestResponse);
             }
         }
 
 
-        [Test]
+        [Test,Order(2)]
         public void should_Send_Clients()
         {
-            var sendTo = new SendManifestPackageDTO(_registry);
 
-            var responses = _htsSendService.SendClientsAsync(sendTo, _clientBag).Result;
+
+            var sendTo = new SendManifestPackageDTO(_registry);
+            //var responses = _htsSendService.SendClientsAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendClientsAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
             foreach (var sendManifestResponse in responses)
             {
                 Console.WriteLine(sendManifestResponse);
             }
+
+
+
         }
 
-        [Test]
+        [Test, Order(3)]
         public void should_Send_cLinkages()
         {
-            var sendTo = new SendManifestPackageDTO(_registry);
-
-            var responses = _htsSendService.SendClientsLinkagesAsync(sendTo, _clientBag).Result;
+             var sendTo = new SendManifestPackageDTO(_registry);
+            //var responses = _htsSendService.SendClientsLinkagesAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendClientsLinkagesAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
             foreach (var sendManifestResponse in responses)
@@ -116,26 +118,27 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
             }
         }
 
-        [Test]
+        [Test,Order(3)]
         public void should_Send_ClientTest()
         {
             var sendTo = new SendManifestPackageDTO(_registry);
-
-            var responses = _htsSendService.SendClientTestsAsync(sendTo, _clientBag).Result;
+            //var responses = _htsSendService.SendClientTestsAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendClientTestsAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
             foreach (var sendManifestResponse in responses)
             {
                 Console.WriteLine(sendManifestResponse);
             }
+
         }
 
-        [Test]
+        [Test,Order(3)]
         public void should_Send_TestKits()
         {
             var sendTo = new SendManifestPackageDTO(_registry);
-
-            var responses = _htsSendService.SendTestKitsAsync(sendTo, _clientBag).Result;
+            //var responses = _htsSendService.SendTestKitsAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendTestKitsAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
             foreach (var sendManifestResponse in responses)
@@ -144,12 +147,12 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
             }
         }
 
-        [Test]
+        [Test,Order(3)]
         public void should_Send_ClientTracing()
         {
             var sendTo = new SendManifestPackageDTO(_registry);
-
-            var responses = _htsSendService.SendClientTracingAsync(sendTo, _clientBag).Result;
+            //var responses = _htsSendService.SendClientTracingAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendClientTracingAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
             foreach (var sendManifestResponse in responses)
@@ -158,12 +161,26 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
             }
         }
 
-        [Test]
+        [Test,Order(3)]
         public void should_Send_PartnerTracing()
         {
             var sendTo = new SendManifestPackageDTO(_registry);
+            //var responses = _htsSendService.SendPartnerTracingAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendPartnerTracingAsync(sendTo).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
+            foreach (var sendManifestResponse in responses)
+            {
+                Console.WriteLine(sendManifestResponse);
+            }
+         }
 
-            var responses = _htsSendService.SendPartnerTracingAsync(sendTo, _clientBag).Result;
+        [Test,Order(3)]
+        public void should_Send_PartnerNotificationServices()
+        {
+            var sendTo = new SendManifestPackageDTO(_registry);
+            //var responses = _htsSendService.SendPartnerNotificationServicesAsync(sendTo, _clientBag).Result;
+            var responses = _htsSendService.SendPartnerNotificationServicesAsync(sendTo).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
             foreach (var sendManifestResponse in responses)
@@ -172,18 +189,36 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
             }
         }
 
-        [Test]
-        public void should_Send_PartnerNotificationServices()
+        [Test,Order(4)]
+        public void should_Validate_Sent()
         {
-            var sendTo = new SendManifestPackageDTO(_registry);
+            var sqlCentral6 = $"select count(Id) from ClientLinkages";
+            var localCount6 = _context.HtsClientsLinkageExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount6, TestInitializer.ExecQuery<int>(sqlCentral6));
 
-            var responses = _htsSendService.SendPartnerNotificationServicesAsync(sendTo, _clientBag).Result;
-            Assert.NotNull(responses);
-            Assert.False(responses.Select(x => x.IsValid()).Any(x => false));
-            foreach (var sendManifestResponse in responses)
-            {
-                Console.WriteLine(sendManifestResponse);
-            }
+            var sqlCentral5 = $"select count(Id) from Clients";
+            var localCount5 = _context.HtsClientsExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount5,TestInitializer.ExecQuery<int>(sqlCentral5));
+
+            var sqlCentral4 = $"select count(Id) from HtsClientTests";
+            var localCount4 = _context.HtsClientTestsExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount4, TestInitializer.ExecQuery<int>(sqlCentral4));
+
+            var sqlCentral3 = $"select count(Id) from HtsTestKits";
+            var localCount3 = _context.HtsTestKitsExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount3, TestInitializer.ExecQuery<int>(sqlCentral3));
+
+            var sqlCentral2 = $"select count(Id) from HtsClientTracing";
+            var localCount2 = _context.HtsClientTracingExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount2, TestInitializer.ExecQuery<int>(sqlCentral2));
+
+            var sqlCentral1 = $"select count(Id) from HtsPartnerTracings";
+            var localCount1 = _context.HtsPartnerTracingExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount1, TestInitializer.ExecQuery<int>(sqlCentral1));
+
+            var sqlCentral = $"select count(Id) from HtsPartnerNotificationServices";
+            var localCount = _context.HtsPartnerNotificationServicesExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount, TestInitializer.ExecQuery<int>(sqlCentral));
         }
     }
 }

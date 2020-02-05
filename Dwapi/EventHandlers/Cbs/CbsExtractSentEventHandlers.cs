@@ -3,7 +3,7 @@ using Dwapi.SharedKernel.Events;
 using Dwapi.UploadManagement.Core.Event.Cbs;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Dwapi.EventHandlers
+namespace Dwapi.EventHandlers.Cbs
 {
     public class CbsExtractSentEventHandlers : IHandler<CbsExtractSentEvent>
     {

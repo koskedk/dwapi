@@ -6,6 +6,7 @@ namespace Dwapi.SharedKernel.Exchange
     public class SendManifestResponse
     {
         public Guid FacilityKey { get; set; }
+        public ManifestMessage Message { get; set; }
 
         public bool IsValid()
         {

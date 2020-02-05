@@ -222,7 +222,7 @@ namespace Dwapi
                             o.UseSqlServer(connectionString,
                       x => x.MigrationsAssembly(typeof(SettingsContext).GetTypeInfo().Assembly.GetName().Name));
                             o.EnableSensitiveDataLogging(false);
-                      
+
 
                         }
 

@@ -54,6 +54,7 @@ namespace Dwapi.UploadManagement.Core.Services.Hts
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsJsonAsync<SendManifestResponse>();
+                        content.Message = message;
                         responses.Add(content);
                     }
                     else
@@ -97,11 +98,11 @@ namespace Dwapi.UploadManagement.Core.Services.Hts
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsJsonAsync<SendMpiResponse>();
-                        responses.Add(content);
-
+                        content.TotalSent = sendCound;
                         var sentIds = message.Clients.Select(x => x.Id).ToList();
                         sendCound += sentIds.Count;
-                        DomainEvents.Dispatch(new HtsExtractSentEvent(sentIds, SendStatus.Sent,sendTo.ExtractName));
+                        responses.Add(content);
+                        DomainEvents.Dispatch(new HtsExtractSentEvent(sentIds, SendStatus.Sent, sendTo.ExtractName));
                     }
                     else
                     {
