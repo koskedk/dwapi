@@ -70,8 +70,7 @@ namespace Dwapi.UploadManagement.Core.Tests
 
             var dir = $"{TestContext.CurrentContext.TestDirectory.HasToEndsWith(@"/")}";
 
-            var config = Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            var config = Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
             var connectionString = config.GetConnectionString("DwapiConnection");
@@ -171,9 +170,13 @@ namespace Dwapi.UploadManagement.Core.Tests
             }
         }
 
-        public static TC ExecQuery<TC>(string sql)
+        public static TC ExecQuery<TC>(string sql,string connectionString="")
         {
             TC result;
+            var conKey=string.IsNullOrWhiteSpace(connectionString) ? "Hts" : connectionString;
+            CentralConnectionString =Configuration.GetConnectionString($"{conKey}CentralConnection");
+
+
             using (var con = new SqlConnection(CentralConnectionString))
             {
                 result = con.Query<TC>(sql).FirstOrDefault();

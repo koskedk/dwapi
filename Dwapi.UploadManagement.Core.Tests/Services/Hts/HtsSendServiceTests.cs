@@ -40,11 +40,6 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Hts
         [OneTimeSetUp]
         public void Init()
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-            var connectionString = config["ConnectionStrings:DwapiConnection"];
-
             /*
                 22704|TOGONYE DISPENSARY|KIRINYAGA
                 22696|HERTLANDS MEDICAL CENTRE|NAROK

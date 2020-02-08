@@ -114,9 +114,11 @@ namespace Dwapi.UploadManagement.Core.Services.Dwh
                 var message = messageBag.Messages;
                 try
                 {
-                    var msg = JsonConvert.SerializeObject(message);
+                    /*
+                    var msg = JsonConvert.SerializeObject(message,new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Serializ});
+                    */
                     var response = await client.PostAsJsonAsync(
-                        sendTo.GetUrl($"{_endPoint.HasToEndsWith("/")}{messageBag.EndPoint}/batch"), message);
+                        sendTo.GetUrl($"{_endPoint.HasToEndsWith("/")}v2/{messageBag.EndPoint}"), message);
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsJsonAsync<SendCTResponse>();
