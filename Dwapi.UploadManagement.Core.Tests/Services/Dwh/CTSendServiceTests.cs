@@ -26,7 +26,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
     {
         private readonly string _authToken = @"1ba47c2a-6e05-11e8-adc0-fa7ae01bbebc";
         private readonly string _subId = "DWAPI";
-        private readonly string url = "http://192.168.100.3/dwapi";
+        private readonly string url = "http://192.168.2.192:3000";
 
         private ICTSendService _ctSendService;
         private DwhManifestMessageBag _bag;
@@ -53,7 +53,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
             _context=TestInitializer.ServiceProvider.GetService<ExtractsContext>();
         }
 
-        [Test]
+        [Test,Order(1)]
         public void should_Send_Manifest()
         {
             var sendTo = new SendManifestPackageDTO(_registry);
@@ -67,12 +67,67 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
             }
         }
 
-        [Test]
+        [Test,Order(2)]
         public void should_Send_ART()
         {
             var sendTo=new SendManifestPackageDTO(_registry);
 
             var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new ArtMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+        }
+        [Test,Order(2)]
+        public void should_Send_AdverseEvent()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new AdverseEventsMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+        }
+        [Test,Order(2)]
+        public void should_Send_Baseline()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new BaselineMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+        }
+        [Test,Order(2)]
+        public void should_Send_Lab()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new LabMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+        }
+        [Test,Order(2)]
+        public void should_Send_Pharmacy()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new PharmacyMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+        }
+        [Test,Order(2)]
+        public void should_Send_Status()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new StatusMessageBag()).Result;
+            Assert.NotNull(responses);
+            Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
+        }
+
+        [Test,Order(2)]
+        public void should_Send_Visit()
+        {
+            var sendTo=new SendManifestPackageDTO(_registry);
+
+            var responses = _ctSendService.SendBatchExtractsAsync(sendTo, 200, new VisitsMessageBag()).Result;
             Assert.NotNull(responses);
             Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
         }
@@ -83,6 +138,31 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
             var sqlCentral6 = $"select count(Id) from PatientArtExtract";
             var localCount6 = _context.PatientArtExtracts.Select(x => x.Id).Count();
             Assert.AreEqual(localCount6, TestInitializer.ExecQuery<int>(sqlCentral6,"Ct"));
+
+            var sqlCentral61 = $"select count(Id) from PatientBaselinesExtract";
+            var localCount61 = _context.PatientArtExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount61, TestInitializer.ExecQuery<int>(sqlCentral61,"Ct"));
+
+            var sqlCentral62 = $"select count(Id) from PatientLaboratoryExtract";
+            var localCount62 = _context.PatientArtExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount62, TestInitializer.ExecQuery<int>(sqlCentral62,"Ct"));
+
+            var sqlCentral64 = $"select count(Id) from PatientPharmacyExtract";
+            var localCount64 = _context.PatientArtExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount64, TestInitializer.ExecQuery<int>(sqlCentral64,"Ct"));
+
+            var sqlCentral65 = $"select count(Id) from PatientStatusExtract";
+            var localCount65 = _context.PatientArtExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount65, TestInitializer.ExecQuery<int>(sqlCentral65,"Ct"));
+
+            var sqlCentral66 = $"select count(Id) from PatientVisitExtract";
+            var localCount66 = _context.PatientArtExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount66, TestInitializer.ExecQuery<int>(sqlCentral66,"Ct"));
+
+            var sqlCentral67 = $"select count(Id) from PatientAdverseEventExtract";
+            var localCount67 = _context.PatientArtExtracts.Select(x => x.Id).Count();
+            Assert.AreEqual(localCount67, TestInitializer.ExecQuery<int>(sqlCentral67,"Ct"));
+
 
         }
         /*

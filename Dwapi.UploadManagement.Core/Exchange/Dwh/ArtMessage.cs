@@ -22,9 +22,7 @@ namespace Dwapi.UploadManagement.Core.Exchange.Dwh
                 return new Facility();
             }
         }
-
         public PatientExtractView Demographic { get; }
-
         [JsonProperty(PropertyName = "ArtExtracts")]
         public List<PatientArtExtractView> Extracts { get; } = new List<PatientArtExtractView>();
 

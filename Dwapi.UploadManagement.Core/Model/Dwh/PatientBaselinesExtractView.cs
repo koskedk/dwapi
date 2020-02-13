@@ -6,7 +6,6 @@ namespace Dwapi.UploadManagement.Core.Model.Dwh
     [Table("PatientBaselinesExtracts")]
     public class PatientBaselinesExtractView : PatientBaselinesExtract
     {
-       
-    
+        public PatientExtractView PatientExtractView { get; set; }
     }
 }
