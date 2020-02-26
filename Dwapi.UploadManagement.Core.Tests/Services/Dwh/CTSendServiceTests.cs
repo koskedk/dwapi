@@ -26,7 +26,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
     {
         private readonly string _authToken = @"1ba47c2a-6e05-11e8-adc0-fa7ae01bbebc";
         private readonly string _subId = "DWAPI";
-        private readonly string url = "http://192.168.2.192:3000";
+        private readonly string url = "http://192.168.100.3:3000";
 
         private ICTSendService _ctSendService;
         private DwhManifestMessageBag _bag;
