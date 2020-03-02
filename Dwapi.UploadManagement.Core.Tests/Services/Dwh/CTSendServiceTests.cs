@@ -131,7 +131,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
             Assert.NotNull(responses);
             Assert.False(responses.Select(x=>x.IsValid()).Any(x=>false));
         }
-
+ /*
         [Test,Order(4)]
         public void should_Validate_Sent()
         {
@@ -165,7 +165,7 @@ namespace Dwapi.UploadManagement.Core.Tests.Services.Dwh
 
 
         }
-        /*
+
 INSERT INTO sys.tables (name) VALUES ('FacilityManifestCargo');
 INSERT INTO sys.tables (name) VALUES ('lkp_USGPartnerMenchanism');
 INSERT INTO sys.tables (name) VALUES ('Facility');

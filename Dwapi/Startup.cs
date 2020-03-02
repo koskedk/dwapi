@@ -406,6 +406,10 @@ namespace Dwapi
             services.AddScoped<IHtsExtractReader, HtsExtractReader>();
             services.AddScoped<IHtsSendService, HtsSendService>();
 
+            services.AddScoped<ICTExtractReader, CTExtractReader>();
+            services.AddScoped<ICTPackager, CTPackager>();
+            services.AddScoped<ICTSendService, CTSendService>();
+
             services.AddScoped<IAppDatabaseManager, AppDatabaseManager>();
 
             services.AddScoped<IEmrMetricRepository, EmrMetricRepository>();
