@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dapper;
 using Dwapi.ExtractsManagement.Core.Interfaces.Repository.Cbs;
 using Dwapi.ExtractsManagement.Core.Model.Destination.Cbs;
+using Dwapi.ExtractsManagement.Core.Model.Destination.Cbs.Dtos;
 using Dwapi.SharedKernel.Infrastructure.Repository;
 using Dwapi.SharedKernel.Model;
 using Microsoft.EntityFrameworkCore;
@@ -39,8 +41,15 @@ namespace Dwapi.ExtractsManagement.Infrastructure.Repository.Cbs
         public IEnumerable<MasterPatientIndex> GetView()
         {
             var ctx = Context as ExtractsContext;
-            var list= ctx.MasterPatientIndices.FromSql("select * from vMasterPatientIndicesJaro").ToList();
-            list.ForEach(i=>i.Score());
+            return ctx.MasterPatientIndices.FromSql("select * from vMasterPatientIndicesJaro");
+        }
+
+        public IEnumerable<MasterPatientIndexDto> GetDtoView()
+        {
+            var ctx = Context as ExtractsContext;
+            var list = ctx.Database.GetDbConnection()
+                .Query<MasterPatientIndexDto>("select * from vMasterPatientIndicesJaroV2").ToList();
+            list.ForEach(i => i.Score());
             return list;
         }
 

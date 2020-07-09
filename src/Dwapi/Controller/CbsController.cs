@@ -142,7 +142,10 @@ namespace Dwapi.Controller
         {
             try
             {
-                var eventExtract = _masterPatientIndexRepository.GetView().ToList().OrderBy(x => x.sxdmPKValueDoB);
+                var eventExtract = _masterPatientIndexRepository
+                    .GetDtoView()
+                    .ToList()
+                    .OrderBy(x => x.sxdmPKValueDoB);
                 return Ok(eventExtract);
             }
             catch (Exception e)
