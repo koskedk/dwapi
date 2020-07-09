@@ -39,7 +39,9 @@ namespace Dwapi.ExtractsManagement.Infrastructure.Repository.Cbs
         public IEnumerable<MasterPatientIndex> GetView()
         {
             var ctx = Context as ExtractsContext;
-            return ctx.MasterPatientIndices.FromSql("select * from vMasterPatientIndicesJaro");
+            var list= ctx.MasterPatientIndices.FromSql("select * from vMasterPatientIndicesJaro").ToList();
+            list.ForEach(i=>i.Score());
+            return list;
         }
 
         public void UpdateSendStatus(List<SentItem> sentItems)

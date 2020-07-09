@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Dwapi.SharedKernel.Enum;
 using Dwapi.SharedKernel.Model;
 using Dwapi.SharedKernel.Utility;
+using Lucene.Net.Search.Spell;
 
 namespace Dwapi.ExtractsManagement.Core.Model.Destination.Cbs
 {
@@ -93,6 +94,7 @@ namespace Dwapi.ExtractsManagement.Core.Model.Destination.Cbs
 
         public string dmPKValueDoB { get; set; }
         public string sxdmPKValueDoB { get; set; }
+        public string sxdmPKValueDoBOther { get; set; }
         public double? JaroWinklerScore { get; set; }
         [DoNotRead]
         public DateTime DateExtracted { get; set; } = DateTime.Now;
@@ -111,6 +113,21 @@ namespace Dwapi.ExtractsManagement.Core.Model.Destination.Cbs
         public bool IsSent
         {
             get { return !string.IsNullOrWhiteSpace(Status) && Status.IsSameAs(nameof(SendStatus.Sent)); }
+        }
+
+        public void Score()
+        {
+            var inputA = sxdmPKValueDoB;
+            var inputB = sxdmPKValueDoBOther;
+
+            if ( (string.IsNullOrWhiteSpace(inputA) || string.IsNullOrWhiteSpace(inputB)))
+                return;
+
+            if ( (string.IsNullOrWhiteSpace(inputA) || string.IsNullOrWhiteSpace(inputB)))
+                return;
+
+            JaroWinklerScore= new JaroWinklerDistance().GetDistance(inputA.ToLower(), inputB.ToLower());
+            // scorer.
         }
     }
 }
