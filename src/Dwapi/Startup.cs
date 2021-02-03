@@ -90,6 +90,7 @@ using Dwapi.SettingsManagement.Infrastructure.Repository;
 using Dwapi.SharedKernel.Enum;
 using Dwapi.SharedKernel.Events;
 using Dwapi.SharedKernel.Infrastructure;
+using Dwapi.SharedKernel.Model;
 using Dwapi.UploadManagement.Core.Interfaces.Packager.Cbs;
 using Dwapi.UploadManagement.Core.Interfaces.Packager.Dwh;
 using Dwapi.UploadManagement.Core.Interfaces.Packager.Hts;
@@ -296,6 +297,9 @@ namespace Dwapi
                 var description = Configuration["Features:PKV:Description"];
                 var key = Configuration["Features:PKV:Key"];
                 AppFeature = AppFeature.Load(name, description, key, CurrrentEnv.IsDevelopment());
+
+                var htsbatch = Configuration["Features:BatchSize:HTS"];
+                AppConstants.HtsBatch = Convert.ToInt32(htsbatch);
             }
             catch (Exception e)
             {
@@ -664,6 +668,7 @@ namespace Dwapi
                 Log.Debug(new string('=', 50));
                 Log.Debug("Features");
                 Log.Debug($"    {AppFeature.PKV}");
+                Log.Debug($"     Batch Size | HTS:{AppConstants.HtsBatch}");
                 Log.Debug(new string('=', 50));
             }
 

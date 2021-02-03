@@ -1,5 +1,8 @@
 {
     "Features": {
+        "BatchSize": {
+            "HTS": 500
+        },
         "PKV": {
             "Name": "PKV",
             "Description": "Decoded PKV",

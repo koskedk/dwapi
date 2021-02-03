@@ -36,7 +36,7 @@ namespace Dwapi.ExtractsManagement.Core.Loader.Hts
             try
             {
 
-                const int take = 1000;
+                int take = AppConstants.HtsBatch;
                 var eCount = await  _tempHtsPartnerNotificationServicesExtractRepository.GetCleanCount();
                 var pageCount = _tempHtsPartnerNotificationServicesExtractRepository.PageCount(take, eCount);
 
