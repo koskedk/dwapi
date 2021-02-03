@@ -281,7 +281,7 @@ namespace Dwapi.ExtractsManagement.Infrastructure
             DapperPlusManager.Entity<Validator>().Key(x => x.Id).Table($"{nameof(Validator)}");
             DapperPlusManager.Entity<DiffLog>().Key(x => x.Id).Table($"{nameof(DiffLogs)}");
             DapperPlusManager.Entity<ExtractHistory>().Key(x => x.Id).Table($"{nameof(ExtractHistory)}");
-            // DapperPlusManager.MapperFactory = mapper => mapper.BatchTimeout(6000);
+            Dapper.SqlMapper.Settings.CommandTimeout = 0;
         }
 
         public override void EnsureSeeded()
